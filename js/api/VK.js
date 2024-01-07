@@ -5,11 +5,19 @@
  * Имеет свойства ACCESS_TOKEN и lastCallback
  * */
 class VK {
+// геттер токена VK
+  static getToken() {
+    let TOKEN_VK = localStorage.getItem('TOKEN_VK');
+    if (!TOKEN_VK) {
+      TOKEN_VK = prompt('Введите токен VK');
+      localStorage.setItem('TOKEN_VK', TOKEN_VK);
+    }
 
-  static ACCESS_TOKEN = '238bf9b9238bf9b9238bf9b97d209d30d12238b238bf9b9461efabfb07e550c606ec1a4';
+    return TOKEN_VK
+  };
   static lastCallback;
   static BASE_URL = 'https://api.vk.com/method/';
-  static VERSION_API = '5.199'
+  static VERSION_API = '5.199';
 
 
   /**
@@ -22,10 +30,20 @@ class VK {
       return /^[a-zA-Z]+$/.test(this);
     }
 
+    // функция вывода ошибки
+    function error(response, funcname) {
+      if (response.error.error_code === 30) {
+        alert(`Профиль пользователя приватный`);
+        throw `Профиль пользователя приватный`;
+      } else {
+        console.error(`Ошибка в функции ${funcname}\nКод ошибки: ${response.error.error_code}\nТекст ошибки: ${response.error.error_msg}\nПолный ответ: \n${JSON.stringify(response.error)}`);
+        alert(`Ошибка в функции ${funcname}\nТекст: ${response.error.error_msg}\nПолный текст ошибки в консоли`);
+        throw `Ошибка в функции ${funcname}`;
+      }
+    }
+
     /**
      * Получает data используя механизм jsonp
-     * @param {*} url 
-     * @returns data
      */
     function jsonp(url) {
       return new Promise((resolve, reject) => {
@@ -39,11 +57,11 @@ class VK {
         const script = document.createElement('script');
         // формирую итоговый url
         url = url + '&' +
-          'access_token=' + VK.ACCESS_TOKEN + '&' +
+          'access_token=' + VK.getToken() + '&' +
           'v=' + VK.VERSION_API + '&' +
           'callback=' + callbackName;
-        console.log(url)
-        script.src = url
+
+        script.src = url;
         document.body.appendChild(script);
       })
     }
@@ -55,6 +73,11 @@ class VK {
           'user_ids=' + id;
 
         const data = await jsonp(url);
+        
+        if (data.error) {
+          error(data, 'getTrueUserId');
+        }
+
         return data;
       }
       catch (err) {
@@ -71,7 +94,10 @@ class VK {
           'photo_sizes=1';
 
         const data = await jsonp(url);
-        return data
+        if (data.error) {
+          error(data, 'getTrueUserId');
+        }
+        return data;
       }
       catch (err) {
         throw err;
@@ -87,7 +113,8 @@ class VK {
         id = data.response[0].id;
       }
       catch (error) {
-        throw error;
+       alert(`Пользователь с ID ${id} не найден`);
+       throw error;
       }
     }
 
@@ -107,19 +134,11 @@ class VK {
       // передаю список ссылок на изображения в последний callback
       this.lastCallback(listAllPhotos);
       // сбрасываю последний callback
-      this.lastCallback = () => { };
+      this.lastCallback = () => {};
     }
     catch (err) {
       alert(err);
+      throw err;
     }
   }
 }
-
-
-
-// onclick
-// VK.get('dolphin1971', (data) => {
-//   data.forEach(el => {
-//     console.log(el)
-//   });
-// })
