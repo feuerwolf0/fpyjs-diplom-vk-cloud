@@ -6,16 +6,16 @@
 class Yandex {
   static HOST = 'https://cloud-api.yandex.net/v1/disk';
   // папка в облаке с которой работает скрипт
-  static mainFolderName = 'JsUploads';
+  static mainFolderName = 'jsDiploma';
 
   /**
    * Метод формирования и сохранения токена для Yandex API
    */
-  static getToken() {
+  static getToken(overwrite=false) {
     let TOKEN_YA = null;
     TOKEN_YA = localStorage.getItem('TOKEN_YA');
 
-    if (!TOKEN_YA) {
+    if (!TOKEN_YA || overwrite === true) {
       TOKEN_YA = prompt('Введите токен OAuth для Яндекс Диска');
       localStorage.setItem('TOKEN_YA', TOKEN_YA);
     }

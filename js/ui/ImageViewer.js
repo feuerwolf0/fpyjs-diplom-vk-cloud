@@ -91,6 +91,9 @@ class ImageViewer {
         if (code === 401) {
           // ошибка авторизации
           console.error(`Код: ${code}\nОшибка авторизации\nОтвет сервера:\n ${JSON.stringify(response)}`);
+          alert('Ошибка авторизации. \nНеверный Yandex token. \nБольше информации в консоли');
+          Yandex.getToken(true);
+          throw 'Ошибка авторизации с Yandex Disk'
         } else if (code === 200) {
           // папка существует
           // получить файлы
@@ -108,6 +111,8 @@ class ImageViewer {
           } else {
             // ошибка
             console.error(`Код: ${code}\nОшибка создания папки ${Yandex.mainFolderName} в облаке\nОтвет сервера:\n${JSON.stringify(response)}`);
+            alert('Ошибка создания папки в облаке. \nБольше информации в консоли')
+            throw 'Ошибка создания папки в облаке'
           }
         }
       }

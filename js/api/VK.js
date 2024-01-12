@@ -6,9 +6,9 @@
  * */
 class VK {
 // геттер токена VK
-  static getToken() {
+  static getToken(overwrite=false) {
     let TOKEN_VK = localStorage.getItem('TOKEN_VK');
-    if (!TOKEN_VK) {
+    if (!TOKEN_VK || overwrite === true) {
       TOKEN_VK = prompt('Введите токен VK');
       localStorage.setItem('TOKEN_VK', TOKEN_VK);
     }
@@ -35,6 +35,11 @@ class VK {
       if (response.error.error_code === 30) {
         alert(`Профиль пользователя приватный`);
         throw `Профиль пользователя приватный`;
+      } else if (response.error.error_code === 5) {
+        alert('Ошибка авторизации. \nНеверный VK token. \nБольше информации в консоли');
+        console.error(`Ошибка в функции ${funcname}\nКод ошибки: ${response.error.error_code}\nТекст ошибки: ${response.error.error_msg}\nПолный ответ: \n${JSON.stringify(response.error)}`);
+        VK.getToken(true);
+        throw `Неверный токен VK\n`;
       } else {
         console.error(`Ошибка в функции ${funcname}\nКод ошибки: ${response.error.error_code}\nТекст ошибки: ${response.error.error_msg}\nПолный ответ: \n${JSON.stringify(response.error)}`);
         alert(`Ошибка в функции ${funcname}\nТекст: ${response.error.error_msg}\nПолный текст ошибки в консоли`);
